@@ -1,4 +1,6 @@
-SRCS= $(addprefix srcs/, main.c)
+SRCS= $(addprefix srcs/, \
+	main.c \
+	utils.c)
 OBJS= $(SRCS:.c=.o)
 
 NAME= ft_ping
