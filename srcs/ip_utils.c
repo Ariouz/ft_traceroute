@@ -1,6 +1,6 @@
 #include "ft_ping.h" 
 
-struct in_addr	resolve_ip(char *hostname)
+struct in_addr	resolve_ip(const char *hostname)
 {
 	struct in_addr address;
 	struct hostent *he;
@@ -19,7 +19,7 @@ struct in_addr	resolve_ip(char *hostname)
 	return address;
 }
 
-char    *to_str(struct in_addr addr)
+char    *to_str(const struct in_addr addr)
 {
     if (!&(addr.s_addr)) return "Unknown";
     return inet_ntoa(addr);

@@ -2,6 +2,14 @@
 
 int main(void)
 {
+	t_opts *opts;
+
+	opts = init_cli_options();
+
+	print_help(opts);
+
+	return 0;
+
 	char *target = "google.com";
 	struct in_addr target_ip;
 
@@ -77,13 +85,17 @@ int main(void)
 
 	if (rc < sizeof(rcv_hdr))
 	{
-		printf("some data lost\n");
+		printf("some packet data is lost\n");
 		return -1;
 	}
 
 	memcpy(&rcv_hdr, data, sizeof(rcv_hdr));
 	if (rcv_hdr.type == ICMP_ECHOREPLY){
 		printf("got reply from echo %d; sequence %d\n", rcv_hdr.un.echo.id, rcv_hdr.un.echo.sequence);
+	}
+	else {
+		// if verbose, print
+		return -1;
 	}
 
 	FD_CLR(sockfd, &read_set);

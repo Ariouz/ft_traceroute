@@ -1,6 +1,9 @@
 SRCS= $(addprefix srcs/, \
 	main.c \
-	utils.c)
+	ip_utils.c \
+	cli/cli_options.c \
+	cli/init_options.c \
+	)
 OBJS= $(SRCS:.c=.o)
 
 NAME= ft_ping
