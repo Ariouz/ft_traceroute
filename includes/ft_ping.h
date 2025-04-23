@@ -9,6 +9,7 @@
 # include <sys/socket.h>
 # include <sys/time.h>
 # include <netinet/in.h>
+# include <netinet/ip.h>
 # include <netinet/ip_icmp.h>
 # include <arpa/inet.h>
 # include <netdb.h>
@@ -16,6 +17,7 @@
 
 # define MAX_OPTS 64
 
+# define OPT_HELP 0
 # define OPT_VERBOSE 1
 
 typedef struct s_opt_alias

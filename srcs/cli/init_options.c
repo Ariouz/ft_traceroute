@@ -49,6 +49,9 @@ t_opts    *init_cli_options()
     add_option("-v", "Enable verbose", 0, OPT_VERBOSE, opts);
     add_opt_alias(opts, OPT_VERBOSE, "--verbose");
 
+    add_option("-?", "Display this help list", 0, OPT_HELP, opts);
+    add_opt_alias(opts, OPT_HELP, "--help");
+
     return (opts);
 }
 
@@ -87,16 +90,22 @@ t_option    *create_option(char *alias, char *description, void *default_value, 
     return option;
 }
 
-void    add_opt_alias(t_opts *opts, int opt_code, char *alias)
+void add_opt_alias(t_opts *opts, int opt_code, char *alias)
 {
-    t_opt_alias *new_alias;
-    new_alias = (t_opt_alias *) malloc(sizeof(t_opt_alias));
+    t_opt_alias *new_alias = malloc(sizeof(t_opt_alias));
+    if (!new_alias) return;
+
     new_alias->code = opt_code;
     new_alias->alias = alias;
 
-    t_opt_alias **tmp = opts->aliases;
+    t_opt_alias **new_aliases = malloc(sizeof(t_opt_alias *) * (opts->alias_size + 1));
+    if (!new_aliases) return;
 
-    opts->aliases = (t_opt_alias **) malloc(sizeof(t_opt_alias *) * opts->alias_size + 1);
-    memcpy(opts->aliases, &tmp, sizeof(tmp));
-    opts->aliases[++opts->alias_size] = new_alias;
+    for (size_t i = 0; i < opts->alias_size; i++)
+        new_aliases[i] = opts->aliases[i];
+    new_aliases[opts->alias_size] = new_alias;
+
+    free(opts->aliases);
+    opts->aliases = new_aliases;
+    opts->alias_size++;
 }

@@ -20,28 +20,19 @@ void    *get_option(char *identifier)
     return 0;
 }
 
-void    print_help(t_opts *opts)
+void print_help(t_opts *opts)
 {
-    int index;
+    printf("Usage: ft_ping [options] <destination>\nOptions:\n");
 
-    index = 0;
-    while (index < opts->size)
-    {
-        t_option *option = opts->options[index];
-        print_aliases(opts);
-        printf(": %s \n", option->description);
-        index++;
-    }
-}
+    for (size_t i = 0; i < opts->size; i++) {
+        t_option *opt = opts->options[i];
+        printf("  %s", opt->alias);
 
-void    print_aliases(t_opts *opts)
-{
-    int index;
+        for (size_t alias_index = 0; alias_index < opts->alias_size; alias_index++) {
+            if (opts->aliases[alias_index]->code == opt->code)
+                printf(", %s", opts->aliases[alias_index]->alias);
+        }
 
-    index = 0;
-    while (index < opts->alias_size)
-    {
-        printf("%s\n", opts->aliases[index]->alias);
-        index++;
+        printf(":\t%s\n", opt->description);
     }
 }
