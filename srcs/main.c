@@ -26,13 +26,14 @@ int main(int argc, char **argv)
 	}
 
 	t_opts *opts;
-
 	opts = init_cli_options();
 
-	if (parse_cli_options(opts, argc, argv) == -1)
-		return 1;
-
-	// print_help(opts);
+	int opt;
+	while ((opt = getopt(argc, argv, "?v")) != -1) // add ':' for argument '::', for optional arg
+	{
+		//printf("getopt: %d, arg: %s\n", opt, optarg);
+		set_option(opts, opt, optarg);
+	}
 
 	return 0;
 

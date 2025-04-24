@@ -15,20 +15,17 @@
 # include <netdb.h>
 # include <sys/socket.h>
 # include <stdbool.h>
+# include <bits/getopt_posix.h>
+
+# define _USE_POSIX2_
 
 # define MAX_OPTS 64
 
-# define OPT_HELP 0
-# define OPT_VERBOSE 1
-
-typedef struct s_opt_alias
-{
-    int     code;
-    char    *alias;
-}   t_opt_alias;
+# define OPT_HELP '?'
+# define OPT_VERBOSE 'v'
 
 typedef struct s_option {
-    int     code;
+    char    code;
     char    *description;
     void    *value;
     bool    requires_value;
@@ -36,9 +33,7 @@ typedef struct s_option {
 
 typedef struct s_opts {
     t_option        **options;
-    t_opt_alias     **aliases;
     size_t          size;
-    size_t          alias_size;
     char            *hostname;
 }   t_opts;
 
@@ -48,15 +43,14 @@ char            *to_str(const struct in_addr addr);
 
 void            print_help(t_opts *opts);
 
-t_opt_alias     **init_aliases();
-void            add_opt_alias(t_opts *opts, int opt_code, char *alias);
 
 t_opts          *init_cli_options();
 t_option        *create_option(int code, char *description, void *default_value, bool requires_value);
 void            add_option(int code, char *description, void *default_value, bool requires_value, t_opts *opts);
 void            save_option(t_opts *opts, t_option *option);
 
-t_option        *get_option(char *alias, t_opts *opts);
+bool            set_option(t_opts *opts, int opt, char *optarg);
+t_option        *get_option(int code, t_opts *opts);
 
 int             parse_cli_options(t_opts *opts, int argc, char **argv);
 // int             is_valid_option(const char* opt);
@@ -64,8 +58,8 @@ int             parse_cli_options(t_opts *opts, int argc, char **argv);
 
 void            clean_free(t_opts *opts);
 void            free_options(t_option **options, size_t opt_len);
-void            free_aliases(t_opt_alias **aliases, size_t aliases_len);
 
+void            exit_error(t_opts *opts);
 void            fatal_error(char *msg, t_opts *opts);
 void            error_required_optval(char *alias, t_opts *opts);
 
