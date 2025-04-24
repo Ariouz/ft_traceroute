@@ -21,6 +21,5 @@ struct in_addr	resolve_ip(const char *hostname)
 
 char    *to_str(const struct in_addr addr)
 {
-    if (!&(addr.s_addr)) return "Unknown";
     return inet_ntoa(addr);
 }

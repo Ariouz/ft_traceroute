@@ -61,4 +61,12 @@ t_option        *get_option(char *alias, t_opts *opts);
 int             parse_cli_options(t_opts *opts, int argc, char **argv);
 // int             is_valid_option(const char* opt);
 
+
+void            clean_free(t_opts *opts);
+void            free_options(t_option **options, size_t opt_len);
+void            free_aliases(t_opt_alias **aliases, size_t aliases_len);
+
+void            fatal_error(char *msg, t_opts *opts);
+void            error_required_optval(char *alias, t_opts *opts);
+
 #endif

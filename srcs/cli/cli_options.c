@@ -36,17 +36,20 @@ void print_help(t_opts *opts)
         t_option *opt = opts->options[i];
 
         alias_count = 0;
+        printf("\t");
         for (size_t alias_index = 0; alias_index < opts->alias_size; alias_index++) {
             if (opts->aliases[alias_index]->code == opt->code)
             {
                 if (alias_count > 0)
-                printf(", ");
+                    printf(", ");
                 printf("%s", opts->aliases[alias_index]->alias);
-                if (opt->requires_value) printf(" - value");
                 alias_count++;
             }
         }
-
-        printf(":\t\t%s\n", opt->description);
+        if (opt->requires_value) printf(" <value>");
+        printf(":\t\t\t%s\n", opt->description);
     }
+
+    clean_free(opts);
+    exit(0);
 }

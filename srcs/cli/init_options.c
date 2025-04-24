@@ -41,16 +41,16 @@ t_opts    *init_cli_options()
     opts = init_opts();
     if (!opts)
     {
-        // todo error / exit
+        fatal_error("Fatal: Failed to init CLI options", opts);
         return NULL;
     }
 
 
-    add_option(OPT_VERBOSE, "Enable verbose", 0, false, opts);
+    add_option(OPT_VERBOSE, "Enable verbose", false, true, opts);
     add_opt_alias(opts, OPT_VERBOSE, "-v");
     add_opt_alias(opts, OPT_VERBOSE, "--verbose");
 
-    add_option(OPT_HELP, "Display this help list", 0, false, opts);
+    add_option(OPT_HELP, "Display this help list", false, false, opts);
     add_opt_alias(opts, OPT_HELP, "-?");
     add_opt_alias(opts, OPT_HELP, "--help");
 
@@ -64,7 +64,7 @@ void        add_option(int code, char *description, void *default_value, bool re
     option = create_option(code, description, default_value, requires_value);
     if (!option)
     {
-        // todo error / exit
+        fatal_error("Fatal: Failed to create CLI option", opts);
         return ;
     }
     save_option(opts, option);

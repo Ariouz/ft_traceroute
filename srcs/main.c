@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 {
 	if (argc <= 1)
 	{
-		printf("Destination required\n");
+		fatal_error("Destination IP/hostname required", NULL);
 		return -1;
 	}
 
@@ -86,7 +86,6 @@ int main(int argc, char **argv)
 
 	printf("sent socket\n");
 
-	struct icmphdr rcv_hdr;
 	struct timeval timeout = {3, 0};
 
 	char	rcv_buf[1024];
@@ -113,7 +112,7 @@ int main(int argc, char **argv)
 	slen = sizeof(struct sockaddr_in);
 	rc = recvfrom(sockfd, rcv_buf, sizeof(rcv_buf), 0, (struct sockaddr *) &sockaddr, &slen);
 
-	if (rc < sizeof(struct iphdr) + sizeof(struct icmphdr)) {
+	if ((long unsigned int) rc < sizeof(struct iphdr) + sizeof(struct icmphdr)) {
 		printf("some packet data is lost\n");
 		return -1;
 	}

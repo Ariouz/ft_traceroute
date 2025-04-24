@@ -1,6 +1,8 @@
 SRCS= $(addprefix srcs/, \
 	main.c \
-	ip_utils.c \
+	utils/ip_utils.c \
+	utils/exit_utils.c \
+	utils/error.c \
 	cli/cli_options.c \
 	cli/init_options.c \
 	cli/cli_options_parser.c \
@@ -8,7 +10,7 @@ SRCS= $(addprefix srcs/, \
 OBJS= $(SRCS:.c=.o)
 
 NAME= ft_ping
-FLAGS=
+FLAGS= -Wall -Werror -Wextra
 INCLUDES= -Iincludes/
 
 all: $(NAME)
