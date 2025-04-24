@@ -17,15 +17,24 @@ unsigned short checksum(void *b, int len) {
 	return result;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
+	if (argc <= 1)
+	{
+		printf("Destination required\n");
+		return -1;
+	}
+
 	t_opts *opts;
 
 	opts = init_cli_options();
 
-	print_help(opts);
+	if (parse_cli_options(opts, argc, argv) == -1)
+		return 1;
 
-	// return 0;
+	// print_help(opts);
+
+	return 0;
 
 	char *target = "1.1.1.1";
 	struct in_addr target_ip;

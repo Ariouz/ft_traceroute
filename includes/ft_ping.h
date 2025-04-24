@@ -14,6 +14,7 @@
 # include <arpa/inet.h>
 # include <netdb.h>
 # include <sys/socket.h>
+# include <stdbool.h>
 
 # define MAX_OPTS 64
 
@@ -28,9 +29,9 @@ typedef struct s_opt_alias
 
 typedef struct s_option {
     int     code;
-    char    *alias;
     char    *description;
     void    *value;
+    bool    requires_value;
 }   t_option;
 
 typedef struct s_opts {
@@ -46,15 +47,18 @@ struct in_addr  resolve_ip(const char *target);
 char            *to_str(const struct in_addr addr);
 
 void            print_help(t_opts *opts);
-void            print_aliases(t_opts *opts);
 
 t_opt_alias     **init_aliases();
 void            add_opt_alias(t_opts *opts, int opt_code, char *alias);
 
 t_opts          *init_cli_options();
-t_option        *create_option(char *alias, char *description, void *default_value, int code);
-void            add_option(char *alias, char *description, void *default_value, int code, t_opts *opts);
+t_option        *create_option(int code, char *description, void *default_value, bool requires_value);
+void            add_option(int code, char *description, void *default_value, bool requires_value, t_opts *opts);
 void            save_option(t_opts *opts, t_option *option);
-int             is_valid_option(const char* opt);
+
+t_option        *get_option(char *alias, t_opts *opts);
+
+int             parse_cli_options(t_opts *opts, int argc, char **argv);
+// int             is_valid_option(const char* opt);
 
 #endif

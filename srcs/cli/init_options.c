@@ -46,20 +46,22 @@ t_opts    *init_cli_options()
     }
 
 
-    add_option("-v", "Enable verbose", 0, OPT_VERBOSE, opts);
+    add_option(OPT_VERBOSE, "Enable verbose", 0, false, opts);
+    add_opt_alias(opts, OPT_VERBOSE, "-v");
     add_opt_alias(opts, OPT_VERBOSE, "--verbose");
 
-    add_option("-?", "Display this help list", 0, OPT_HELP, opts);
+    add_option(OPT_HELP, "Display this help list", 0, false, opts);
+    add_opt_alias(opts, OPT_HELP, "-?");
     add_opt_alias(opts, OPT_HELP, "--help");
 
     return (opts);
 }
 
-void        add_option(char *alias, char *description, void *default_value, int code, t_opts *opts)
+void        add_option(int code, char *description, void *default_value, bool requires_value, t_opts *opts)
 {
     t_option   *option;
 
-    option = create_option(alias, description, default_value, code);
+    option = create_option(code, description, default_value, requires_value);
     if (!option)
     {
         // todo error / exit
@@ -75,17 +77,17 @@ void        save_option(t_opts *opts, t_option *option)
     opts->size++;
 }
 
-t_option    *create_option(char *alias, char *description, void *default_value, int code)
+t_option    *create_option(int code, char *description, void *default_value, bool requires_value)
 {
     t_option *option;
     option = (t_option *) malloc(sizeof(t_option));
     if (!option)
         return NULL;
 
-    option->alias = alias;
+    option->code = code;
     option->description = description;
     option->value = default_value;
-    option->code = code;
+    option->requires_value = requires_value;
 
     return option;
 }

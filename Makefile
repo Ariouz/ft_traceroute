@@ -3,6 +3,7 @@ SRCS= $(addprefix srcs/, \
 	ip_utils.c \
 	cli/cli_options.c \
 	cli/init_options.c \
+	cli/cli_options_parser.c \
 	)
 OBJS= $(SRCS:.c=.o)
 
