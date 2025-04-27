@@ -1,64 +1,57 @@
 #include "ft_ping.h"
 
-t_opts      *init_opts()
+void    init_opts()
 {
-    t_opts  *opts;
-    opts = (t_opts *) malloc(sizeof(t_opts));
-    if (!opts)
-        return NULL;
+    g_opts = (t_opts *) malloc(sizeof(t_opts));
+    if (!g_opts)
+        return ;
     
-    opts->options = malloc(sizeof(t_option *) * MAX_OPTS);
-    if (!opts->options)
-        return NULL;
+    g_opts->options = malloc(sizeof(t_option *) * MAX_OPTS);
+    if (!g_opts->options)
+        return ;
 
-    opts->size = 0;
-    opts->hostname = NULL;
-
-    return opts;
+    g_opts->size = 0;
+    g_opts->hostname = NULL;
+    g_opts->is_running = true;
+    g_opts->sockfd = -1;
 }
 
-t_opts    *init_cli_options()
+void    init_cli_options()
 {
-    t_opts *opts;
-    opts = init_opts();
-    if (!opts)
-    {
-        fatal_error("Fatal: Failed to init CLI options", opts);
-        return NULL;
-    }
+    init_opts();
+    if (!g_opts || !g_opts->options)
+        fatal_error("Fatal: Failed to init CLI options");
 
-    add_option(OPT_VERBOSE, "Enable verbose", false, true, opts);
-    add_option(OPT_HELP, "Display this help list", false, false, opts);
-
-    return (opts);
+    add_option(OPT_VERBOSE, "Enable verbose", false, false);
+    add_option(OPT_HELP, "Display this help list", 0, false);
 }
 
-void        add_option(int code, char *description, void *default_value, bool requires_value, t_opts *opts)
+void        add_option(int code, char *description, int default_value, bool requires_value)
 {
     t_option   *option;
 
     option = create_option(code, description, default_value, requires_value);
     if (!option)
     {
-        fatal_error("Fatal: Failed to create CLI option", opts);
+        fatal_error("Fatal: Failed to create CLI option");
         return ;
     }
-    save_option(opts, option);
+    save_option(option);
 }
 
-void        save_option(t_opts *opts, t_option *option)
+void        save_option(t_option *option)
 {
-    if (opts->size >= MAX_OPTS) return ;
-    opts->options[opts->size] = option;
-    opts->size++;
+    if (g_opts->size >= MAX_OPTS) return ;
+    g_opts->options[g_opts->size] = option;
+    g_opts->size++;
 }
 
-t_option    *create_option(int code, char *description, void *default_value, bool requires_value)
+t_option    *create_option(int code, char *description, int default_value, bool requires_value)
 {
     t_option *option;
     option = (t_option *) malloc(sizeof(t_option));
     if (!option)
-        return NULL;
+        fatal_error("Failed to init cli option");
 
     option->code = code;
     option->description = description;

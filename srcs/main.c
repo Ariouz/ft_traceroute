@@ -1,136 +1,50 @@
 #include "ft_ping.h"
 
+t_opts *g_opts = NULL;
+t_stats *g_stats = NULL;
+pthread_mutex_t g_opts_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t g_stats_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-unsigned short checksum(void *b, int len) {
-	unsigned short *buf = b;
-	unsigned int sum = 0;
-	unsigned short result;
+void	run()
+{
+	pthread_t sender_thread, receiver_thread;
+	printf("PING %s (%s): %d data bytes", g_opts->hostname, to_str(g_opts->target_ip), 56);
+	if (get_option(OPT_VERBOSE)->value == true)
+		printf(" id 0x%x = %d", getpid() & 0xFFFF, getpid());
+	printf("\n");
 
-	for (sum = 0; len > 1; len -= 2)
-		sum += *buf++;
-	if (len == 1)
-		sum += *(unsigned char *)buf;
+	pthread_create(&sender_thread, NULL, sender_routine, NULL);
+	pthread_create(&receiver_thread, NULL, receiver_routine, NULL);
 
-	sum = (sum >> 16) + (sum & 0xFFFF);
-	sum += (sum >> 16);
-	result = ~sum;
-	return result;
+	pthread_join(sender_thread, NULL);
+	pthread_join(receiver_thread, NULL);
+	pthread_mutex_destroy(&g_opts_mutex);
+	pthread_mutex_destroy(&g_stats_mutex);
 }
 
 int main(int argc, char **argv)
 {
-	if (argc <= 1)
-	{
-		fatal_error("Destination IP/hostname required", NULL);
-		return -1;
-	}
+	init_cli_options(argc, argv);
+	parse_cli_options(argc, argv);
+	g_stats = init_stats();
 
-	t_opts *opts;
-	opts = init_cli_options();
+	int args_count = argc - optind;
+	if (args_count < 1)
+		fatal_error("Destination IP/hostname required");
+	if (args_count > 1)
+		fatal_error("Destination already set");
 
-	int opt;
-	while ((opt = getopt(argc, argv, "?v")) != -1) // add ':' for argument '::', for optional arg
-	{
-		//printf("getopt: %d, arg: %s\n", opt, optarg);
-		set_option(opts, opt, optarg);
-	}
+	g_opts->hostname = argv[optind];
+	g_opts->target_ip = resolve_ip(argv[optind]);
 
-	return 0;
+	if (g_opts->target_ip.s_addr == INADDR_NONE)
+		fatal_error("Unknown host");
 
-	char *target = "1.1.1.1";
-	struct in_addr target_ip;
+	handle_signals();
+	g_opts->sockfd = open_socket();
+	run();
 
-	target_ip = resolve_ip(target);
-	if (target_ip.s_addr == INADDR_NONE)
-		return 1;
-
-	printf("Pinging IP: %s\n", to_str(target_ip));
-
-	int sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-	if (sockfd == -1)
-	{
-		perror("socket");
-		return 1;
-	}
-
-	struct sockaddr_in sockaddr;
-	sockaddr.sin_addr = target_ip;
-	sockaddr.sin_family = AF_INET;
-
-	struct icmphdr hdr;
-	hdr.type = ICMP_ECHO;
-	hdr.un.echo.id = getpid() & 0xFFFF;
-	hdr.code = 0;
-
-	int sequence = 0;
-	hdr.un.echo.sequence = sequence++;
-
-	unsigned char data[1024];
-	memcpy(data, &hdr, sizeof(hdr));
-
-	char payload[56];
-	memset(&payload, 'a', 56);
-	memcpy(data + sizeof(hdr), payload, 56);
-
-	hdr.checksum = checksum(data, sizeof(hdr) + 56);
-	memcpy(data, &hdr, sizeof(hdr));
-
-
-	int rc = 0;
-	rc = sendto(sockfd, data, sizeof(hdr) + 56, 0, (struct sockaddr *) &sockaddr, sizeof(sockaddr));
-
-	if (rc == -1)
-	{
-		perror("sendto");
-		return 1;
-	}
-
-	printf("sent socket\n");
-
-	struct timeval timeout = {3, 0};
-
-	char	rcv_buf[1024];
-
-	fd_set read_set;
-	memset(&read_set, 0, sizeof(read_set));
-	FD_SET(sockfd, &read_set);
-
-	rc = select(sockfd + 1, &read_set, NULL, NULL, &timeout);
-	printf("rc: %d\n", rc);
-	if (rc == -1)
-	{
-		perror("select");
-		return -1;
-	}
-	if (rc == 0)
-	{
-		printf("timeout\n");
-		return -1;
-	}
-
-	socklen_t slen;
-
-	slen = sizeof(struct sockaddr_in);
-	rc = recvfrom(sockfd, rcv_buf, sizeof(rcv_buf), 0, (struct sockaddr *) &sockaddr, &slen);
-
-	if ((long unsigned int) rc < sizeof(struct iphdr) + sizeof(struct icmphdr)) {
-		printf("some packet data is lost\n");
-		return -1;
-	}
-	
-	struct iphdr *ip = (struct iphdr *)rcv_buf; 
-	int ip_header_len = ip->ihl * 4;
-
-	struct icmphdr *rcv_icmp = (struct icmphdr *)(rcv_buf + sizeof(struct iphdr));
-
-	
-	if (rcv_icmp->type == ICMP_ECHOREPLY) {
-		printf("got reply from echo %d; sequence %d; bytes %d\n", rcv_icmp->un.echo.id, rcv_icmp->un.echo.sequence, rc-ip_header_len);
-	} else {
-		printf("Received ICMP type %d (not echo reply)\n", rcv_icmp->type);
-	}
-
-	FD_CLR(sockfd, &read_set);
-	close(sockfd);
-	return (1);
+    print_stats();
+	clean_exit(0);
+	return (0);
 }

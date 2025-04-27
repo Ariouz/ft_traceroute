@@ -1,39 +1,37 @@
 #include "ft_ping.h"
 
-bool    process_option(t_opts *opts, t_option *option, char *value)
+bool    process_option(t_option *option, char *value)
 {
     (void) value;
     if (option->code == OPT_HELP)
-        print_help(opts);
+        print_help();
     if (option->code == OPT_VERBOSE)
-        option->value = (void *) true;
+        option->value = true;
 
-    return true; // todo return false if 'value' if value is invalid
+    return true;
 }
 
-int     parse_cli_options(t_opts *opts, int argc, char **argv)
+void     parse_cli_options(int argc, char **argv)
 {
-    (void) opts;
-    (void) argc;
-    (void) argv;
-
-    // todo parse using getopt, optarg, optopt
+    int opt;
+	while ((opt = getopt(argc, argv, "?v")) != -1)
+	{
+		//printf("getopt: %d, arg: %s\n", opt, optarg);
+		set_option(opt, optarg);
+	}
    
-    return 0;
 }
 
-
-
-bool    set_option(t_opts *opts, int opt, char *optarg)
+bool    set_option(int opt, char *optarg)
 {
     t_option *option;
 
-    option = get_option(opt, opts);
+    option = get_option(opt);
     if (!option)
-        fatal_error("Invalid option", opts);
+        fatal_error("Invalid option, use -? for options list");
 
     if (opt == '?' && optopt != 0)
-        exit_error(opts);
+        exit_error();
 
-    return process_option(opts, option, optarg);
+    return process_option(option, optarg);
 }

@@ -1,5 +1,6 @@
 #ifndef FT_PING_H
 # define FT_PING_H
+# define __USE_POSIX2
 
 # include <unistd.h>
 # include <stdio.h>
@@ -13,21 +14,46 @@
 # include <netinet/ip_icmp.h>
 # include <arpa/inet.h>
 # include <netdb.h>
-# include <sys/socket.h>
-# include <stdbool.h>
-# include <bits/getopt_posix.h>
+# include <errno.h>
+# include <getopt.h>
+# include <pthread.h>
+# include <signal.h>
 
-# define _USE_POSIX2_
+# define true 1
+# define false 0
 
-# define MAX_OPTS 64
+# define SOCK_RTT_BATCH_SIZE 10
 
 # define OPT_HELP '?'
 # define OPT_VERBOSE 'v'
+# define MAX_OPTS 2
+
+typedef int bool;
+
+typedef struct s_sock_rtt {
+    struct timeval      start;
+    struct timeval      end;
+    int                 sequence;
+    float               rtt;
+}   t_sock_rtt;
+
+typedef struct s_stats {
+    t_sock_rtt  *sock_rtt;
+    size_t      sock_rtt_size;
+    size_t      sock_rtt_total_size;
+    long        sent_sockets;
+    long        rcvd_sockets;
+    float       min_rtt;
+    float       avg_rtt;
+    float       max_rtt;
+    float       stddev;
+
+}   t_stats;
 
 typedef struct s_option {
     char    code;
     char    *description;
-    void    *value;
+    int     value;
     bool    requires_value;
 }   t_option;
 
@@ -35,32 +61,67 @@ typedef struct s_opts {
     t_option        **options;
     size_t          size;
     char            *hostname;
+    bool            is_running;
+    int             sockfd;
+    struct in_addr  target_ip;
 }   t_opts;
+
+
+extern t_opts *g_opts;
+extern t_stats *g_stats;
+extern pthread_mutex_t g_opts_mutex;
+extern pthread_mutex_t g_stats_mutex;
 
 
 struct in_addr  resolve_ip(const char *target);
 char            *to_str(const struct in_addr addr);
+unsigned short  checksum(void *data, int len);
 
-void            print_help(t_opts *opts);
+void            handle_signals();
+
+void            *sender_routine(void *arg);
+void            *receiver_routine(void *arg);
+
+void            init_cli_options();
+t_option        *create_option(int code, char *description, int default_value, bool requires_value);
+void            add_option(int code, char *description, int default_value, bool requires_value);
+void            save_option(t_option *option);
+
+bool            set_option(int opt, char *optarg);
+t_option        *get_option(int code);
+
+void            parse_cli_options(int argc, char **argv);
 
 
-t_opts          *init_cli_options();
-t_option        *create_option(int code, char *description, void *default_value, bool requires_value);
-void            add_option(int code, char *description, void *default_value, bool requires_value, t_opts *opts);
-void            save_option(t_opts *opts, t_option *option);
+int                 open_socket();
+struct sockaddr_in  get_sockaddr(struct in_addr target_ip);
+void                send_socket(struct in_addr target_ip, int sockfd, size_t payload_size, int sequence);
+void                receive_socket(int sockfd, fd_set *read_set);
 
-bool            set_option(t_opts *opts, int opt, char *optarg);
-t_option        *get_option(int code, t_opts *opts);
+void            print_help();
 
-int             parse_cli_options(t_opts *opts, int argc, char **argv);
-// int             is_valid_option(const char* opt);
-
-
-void            clean_free(t_opts *opts);
+void            clean_free();
 void            free_options(t_option **options, size_t opt_len);
 
-void            exit_error(t_opts *opts);
-void            fatal_error(char *msg, t_opts *opts);
-void            error_required_optval(char *alias, t_opts *opts);
+bool            is_runnning();
+
+void            exit_error();
+void            fatal_error(char *msg);
+void            clean_exit(int code);
+
+t_stats         *init_stats();
+void            save_send_time(t_stats *stats, int sequence);
+float           save_rcv_time(t_stats *stats, int sequence);
+t_sock_rtt      *get_sock_rtt(t_stats *stats, int sequence);
+
+void            print_stats();
+void            process_rtt(float rtt);
+
+long long       get_time_ms(struct timeval tv);
+long long       get_time_us(struct timeval tv);
+
+double          ft_pow(double base, int exp);
+double          ft_sqrt(double n);
+
 
 #endif
