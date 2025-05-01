@@ -7,6 +7,20 @@ int     open_socket()
 	{
 		fatal_error(strerror(errno));
 	}
+
+	int val = 0;
+
+	/*int ttl = get_option(OPT_TTL)->value;
+	if (setsockopt(sockfd, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl)) < 0)
+		fatal_error(strerror(errno));*/ // todo ttl ??
+
+	val = get_option(OPT_TOS)->value;
+	if (setsockopt(sockfd, IPPROTO_IP, IP_TOS, &val, sizeof(val)) < 0)
+		fatal_error(strerror(errno));
+
+	val = IP_PMTUDISC_DO;
+	if (setsockopt(sockfd, IPPROTO_IP, IP_MTU_DISCOVER, &val, sizeof(val)) < 0)
+		fatal_error(strerror(errno));
     return sockfd;
 }
 
@@ -27,7 +41,7 @@ struct icmphdr  build_icmp_header(unsigned char *data, int sequence, size_t payl
 	hdr.type = ICMP_ECHO;
 	hdr.code = 0;
 	
-	hdr.un.echo.id = getpid() & 0xFFFF;
+	hdr.un.echo.id = (getpid() & 0xFFFF);
 	hdr.un.echo.sequence = sequence;
 
 	memcpy(data, &hdr, sizeof(hdr));

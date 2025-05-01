@@ -10,6 +10,7 @@ void    save_send_time(t_stats *stats, int sequence)
     new_rtt.start = start;
     new_rtt.sequence = sequence;
     new_rtt.rtt = 0;
+    new_rtt.status = SOCK_SENT;
 
     if (stats->sock_rtt_size >= stats->sock_rtt_total_size)
     {
@@ -36,6 +37,7 @@ float    save_rcv_time(t_stats *stats, int sequence)
             gettimeofday(&stats->sock_rtt[index].end, NULL);
             rtt = (get_time_us(sock_rtt->end) - get_time_us(sock_rtt->start)) / (float) 1000.0;
             sock_rtt->rtt = rtt;
+            sock_rtt->status = SOCK_RECEIVED;
 
             return rtt;
         }

@@ -22,8 +22,14 @@ void    init_cli_options()
     if (!g_opts || !g_opts->options)
         fatal_error("Fatal: Failed to init CLI options");
 
-    add_option(OPT_VERBOSE, "Enable verbose", false, false);
     add_option(OPT_HELP, "Display this help list", 0, false);
+    add_option(OPT_REPLY_COUNT, "Stop after receiving <count> ECHO_REPLY packets", INT32_MAX, false);
+    add_option(OPT_INTERVAL, "Number of seconds to wait after sending a socket", 1, false);
+    add_option(OPT_QUIET, "Nothing is displayed except summary at startup and finish", false, false);
+    add_option(OPT_PACKET_SIZE, "Set the packet data bytes to be sent", 56, false);
+    add_option(OPT_TOS, "Set the packet type of service value", 0, false);
+    add_option(OPT_VERBOSE, "Enable verbose output", false, false);
+    add_option(OPT_LINGER, "Number of seconds to wait for response", 3, false);
 }
 
 void        add_option(int code, char *description, int default_value, bool requires_value)

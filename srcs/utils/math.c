@@ -32,7 +32,7 @@ double ft_pow(double base, int exp)
 double ft_sqrt(double n)
 {
     if (n < 0)
-        return -1; // erreur racine carrée négative
+        return -1;
     if (n == 0 || n == 1)
         return n;
 

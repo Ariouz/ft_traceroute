@@ -7,8 +7,6 @@ void    handle_sig_int(int code)
     pthread_mutex_lock(&g_opts_mutex);
     g_opts->is_running = false;
     pthread_mutex_unlock(&g_opts_mutex);
-
-    printf("Received CTRL+C, ending threads...\n");
 }
 
 void handle_signals()

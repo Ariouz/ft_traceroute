@@ -8,6 +8,7 @@ SRCS= $(addprefix srcs/, \
 	utils/stats/end_stats.c \
 	utils/stats/ping_stats.c \
 	utils/stats/stats_process.c \
+	utils/stats/timeout_check.c \
 	cli/cli_options.c \
 	cli/init_options.c \
 	cli/cli_options_parser.c \

@@ -25,8 +25,20 @@
 # define SOCK_RTT_BATCH_SIZE 10
 
 # define OPT_HELP '?'
+# define OPT_REPLY_COUNT 'c'
+# define OPT_INTERVAL 'i'
+# define OPT_QUIET 'q'
+# define OPT_PACKET_SIZE 's'
+# define OPT_TOS 'T'
 # define OPT_VERBOSE 'v'
-# define MAX_OPTS 2
+# define OPT_LINGER 'W'
+
+# define MAX_OPTS 16
+
+# define SOCK_SENT 0
+# define SOCK_RECEIVED 1
+# define SOCK_TIMEOUT 2
+
 
 typedef int bool;
 
@@ -35,6 +47,7 @@ typedef struct s_sock_rtt {
     struct timeval      end;
     int                 sequence;
     float               rtt;
+    int                 status;
 }   t_sock_rtt;
 
 typedef struct s_stats {
@@ -81,6 +94,7 @@ void            handle_signals();
 
 void            *sender_routine(void *arg);
 void            *receiver_routine(void *arg);
+void            check_timeouts();
 
 void            init_cli_options();
 t_option        *create_option(int code, char *description, int default_value, bool requires_value);
@@ -89,14 +103,15 @@ void            save_option(t_option *option);
 
 bool            set_option(int opt, char *optarg);
 t_option        *get_option(int code);
-
 void            parse_cli_options(int argc, char **argv);
+int             parse_opt_int(char *value, int min, int max);
 
 
 int                 open_socket();
 struct sockaddr_in  get_sockaddr(struct in_addr target_ip);
 void                send_socket(struct in_addr target_ip, int sockfd, size_t payload_size, int sequence);
 void                receive_socket(int sockfd, fd_set *read_set);
+void	            handle_icmp_types(struct sockaddr_in rcv_sockaddr, struct icmphdr *rcv_icmp, size_t rcv_bytes, struct iphdr *rcv_ip);
 
 void            print_help();
 
@@ -116,9 +131,12 @@ t_sock_rtt      *get_sock_rtt(t_stats *stats, int sequence);
 
 void            print_stats();
 void            process_rtt(float rtt);
+void            print_ip_hdr_dump(struct iphdr *ip);
+void            print_verbose(struct iphdr *inner_ip, struct icmphdr *inner_icmp);
 
 long long       get_time_ms(struct timeval tv);
 long long       get_time_us(struct timeval tv);
+int		        multisleep(long max_time_millis, long increment);
 
 double          ft_pow(double base, int exp);
 double          ft_sqrt(double n);
