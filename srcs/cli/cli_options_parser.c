@@ -1,4 +1,4 @@
-#include "ft_ping.h"
+#include "ft_traceroute.h"
 
 bool    process_option(t_option *option, char *value)
 {

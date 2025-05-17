@@ -1,4 +1,4 @@
-#include "ft_ping.h"
+#include "ft_traceroute.h"
 
 void    save_send_time(t_stats *stats, int sequence)
 {
@@ -53,12 +53,6 @@ t_stats    *init_stats()
 
     if (!stats) fatal_error("Failed to init ping stats");
 
-    stats->avg_rtt = 0;
-    stats->min_rtt = INT32_MAX;
-    stats->max_rtt = INT32_MIN;
-    stats->stddev = 0;
-    stats->rcvd_sockets = 0;
-    stats->sent_sockets = 0;
     stats->sock_rtt_size = 0;
     stats->sock_rtt_total_size = SOCK_RTT_BATCH_SIZE;
     stats->sock_rtt = malloc(sizeof(t_sock_rtt) * SOCK_RTT_BATCH_SIZE);

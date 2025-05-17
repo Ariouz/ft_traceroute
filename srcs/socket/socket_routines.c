@@ -1,4 +1,4 @@
-#include "ft_ping.h"
+#include "ft_traceroute.h"
 
 void *sender_routine(void *arg)
 {
@@ -20,9 +20,7 @@ void *receiver_routine(void *arg)
 	fd_set read_set;
 	int		sockfd;
 
-	pthread_mutex_lock(&g_opts_mutex);
 	sockfd = g_opts->sockfd;
-	pthread_mutex_unlock(&g_opts_mutex);
 
 	while (true)
 	{
@@ -31,13 +29,10 @@ void *receiver_routine(void *arg)
 
 		receive_socket(sockfd, &read_set);
 		
-		pthread_mutex_lock(&g_opts_mutex);
 		if (!g_opts->is_running)
 		{
-			pthread_mutex_unlock(&g_opts_mutex);
 			break ;
 		}
-		pthread_mutex_unlock(&g_opts_mutex);
 	}
 	FD_CLR(g_opts->sockfd, &read_set);
 	return NULL;

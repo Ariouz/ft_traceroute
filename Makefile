@@ -3,11 +3,8 @@ SRCS= $(addprefix srcs/, \
 	utils/ip_utils.c \
 	utils/exit_utils.c \
 	utils/error.c \
-	utils/math.c \
 	utils/stats/time_utils.c \
-	utils/stats/end_stats.c \
 	utils/stats/ping_stats.c \
-	utils/stats/stats_process.c \
 	utils/stats/timeout_check.c \
 	cli/cli_options.c \
 	cli/init_options.c \
@@ -16,10 +13,11 @@ SRCS= $(addprefix srcs/, \
 	socket/socket_receive.c \
 	socket/socket_routines.c \
 	signals/sig_handler.c \
+	traceroute/tracer.c \
 	)
 OBJS= $(SRCS:.c=.o)
 
-NAME= ft_ping
+NAME= ft_traceroute
 FLAGS= -Wall -Werror -Wextra
 INCLUDES= -Iincludes/
 

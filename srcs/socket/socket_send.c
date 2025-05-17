@@ -1,4 +1,4 @@
-#include "ft_ping.h"
+#include "ft_traceroute.h"
 
 int     open_socket()
 {
@@ -74,8 +74,5 @@ void    send_socket(struct in_addr target_ip, int sockfd, size_t payload_size, i
 		return ;
 	}
 
-	pthread_mutex_lock(&g_stats_mutex);
 	save_send_time(g_stats, sequence);
-	g_stats->sent_sockets++;
-	pthread_mutex_unlock(&g_stats_mutex);
 }

@@ -1,5 +1,5 @@
-#ifndef FT_PING_H
-# define FT_PING_H
+#ifndef FT_TRACEROUTE_H
+# define FT_TRACEROUTE_H
 # define __USE_POSIX2
 
 # include <unistd.h>
@@ -16,7 +16,6 @@
 # include <netdb.h>
 # include <errno.h>
 # include <getopt.h>
-# include <pthread.h>
 # include <signal.h>
 
 # define true 1
@@ -54,12 +53,6 @@ typedef struct s_stats {
     t_sock_rtt  *sock_rtt;
     size_t      sock_rtt_size;
     size_t      sock_rtt_total_size;
-    long        sent_sockets;
-    long        rcvd_sockets;
-    float       min_rtt;
-    float       avg_rtt;
-    float       max_rtt;
-    float       stddev;
 
 }   t_stats;
 
@@ -82,8 +75,6 @@ typedef struct s_opts {
 
 extern t_opts *g_opts;
 extern t_stats *g_stats;
-extern pthread_mutex_t g_opts_mutex;
-extern pthread_mutex_t g_stats_mutex;
 
 
 struct in_addr  resolve_ip(const char *target);
@@ -110,6 +101,7 @@ int             parse_opt_int(char *value, int min, int max);
 int                 open_socket();
 struct sockaddr_in  get_sockaddr(struct in_addr target_ip);
 void                send_socket(struct in_addr target_ip, int sockfd, size_t payload_size, int sequence);
+size_t              wait_socket(int sockfd, fd_set *read_set);
 void                receive_socket(int sockfd, fd_set *read_set);
 void	            handle_icmp_types(struct sockaddr_in rcv_sockaddr, struct icmphdr *rcv_icmp, size_t rcv_bytes, struct iphdr *rcv_ip);
 
@@ -129,17 +121,10 @@ void            save_send_time(t_stats *stats, int sequence);
 float           save_rcv_time(t_stats *stats, int sequence);
 t_sock_rtt      *get_sock_rtt(t_stats *stats, int sequence);
 
-void            print_stats();
-void            process_rtt(float rtt);
-void            print_ip_hdr_dump(struct iphdr *ip);
-void            print_verbose(struct iphdr *inner_ip, struct icmphdr *inner_icmp);
-
 long long       get_time_ms(struct timeval tv);
 long long       get_time_us(struct timeval tv);
 int		        multisleep(long max_time_millis, long increment);
 
-double          ft_pow(double base, int exp);
-double          ft_sqrt(double n);
-
+void            trace();
 
 #endif

@@ -1,8 +1,8 @@
-#include "ft_ping.h"
+#include "ft_traceroute.h"
 
 size_t wait_socket(int sockfd, fd_set *read_set)
 {
-	struct timeval timeout = {0, 100};
+	struct timeval timeout = {1, 0};
     int res = 0;
     res = select(sockfd + 1, read_set, NULL, NULL, &timeout);
 	if (!is_runnning()) return -1;
@@ -40,25 +40,14 @@ void receive_socket(int sockfd, fd_set *read_set)
     int ttl = rcv_ip->ttl;
 	int sequence = rcv_icmp->un.echo.sequence;
 
-	pthread_mutex_lock(&g_stats_mutex);
 	float rtt = save_rcv_time(g_stats, sequence);
-	pthread_mutex_unlock(&g_stats_mutex);
 
 	if (rcv_icmp->type == ICMP_ECHOREPLY) {
 		if (get_option(OPT_QUIET)->value == false)
 			printf("%d bytes from %s (%s): icmp_seq=%d ttl=%d time=%.3f ms\n", 
 				rvc_data_len, to_str(rcv_sockaddr.sin_addr), to_str(rcv_sockaddr.sin_addr), sequence, ttl, rtt);
-		
-		pthread_mutex_lock(&g_stats_mutex);
-		process_rtt(rtt);
-		g_stats->rcvd_sockets++;
-
-		if (g_stats->rcvd_sockets == get_option(OPT_REPLY_COUNT)->value) g_opts->is_running = false;
-		pthread_mutex_unlock(&g_stats_mutex);
 	} else {
-		pthread_mutex_lock(&g_stats_mutex);
 		handle_icmp_types(rcv_sockaddr, rcv_icmp, rcv_bytes, rcv_ip);
-		pthread_mutex_unlock(&g_stats_mutex);
 	}
 
 }
@@ -71,9 +60,6 @@ void	handle_icmp_types(struct sockaddr_in rcv_sockaddr, struct icmphdr *rcv_icmp
 	int type = rcv_icmp->type;
 	int code = rcv_icmp->code;
 
-	struct iphdr *inner_ip = (void *)rcv_icmp + sizeof(struct icmphdr);
-	struct icmphdr *inner_icmp = (struct icmphdr *)((uint8_t *)inner_ip + (inner_ip->ihl * 4));
-	
 	if (get_option(OPT_QUIET)->value == true) return ;
 
 	// err from sender
@@ -88,6 +74,4 @@ void	handle_icmp_types(struct sockaddr_in rcv_sockaddr, struct icmphdr *rcv_icmp
 			to_str(rcv_sockaddr.sin_addr), sequence , rcv_icmp->type, rcv_icmp->code, rcv_icmp->un.echo.id);
 	}
 
-	if (get_option(OPT_VERBOSE)->value == true)
-		print_verbose(inner_ip, inner_icmp);
 }

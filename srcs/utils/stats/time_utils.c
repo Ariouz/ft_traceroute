@@ -1,4 +1,4 @@
-#include "ft_ping.h"
+#include "ft_traceroute.h"
 
 long long get_time_ms(struct timeval tv) {
     return (long long)(tv.tv_sec) * 1000 + (long long)(tv.tv_usec) / 1000;
@@ -17,13 +17,10 @@ int		multisleep(long max_time_millis, long increment)
 	{
 		total_time_millis += increment;
 		usleep(increment * 1000);
-		pthread_mutex_lock(&g_opts_mutex);
 		if (!g_opts->is_running)
 		{
-			pthread_mutex_unlock(&g_opts_mutex);
 			return -1;
 		}
-		pthread_mutex_unlock(&g_opts_mutex);
 	}
 	return 0;
 }

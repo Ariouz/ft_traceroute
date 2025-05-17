@@ -1,4 +1,4 @@
-# include "ft_ping.h"
+# include "ft_traceroute.h"
 
 
 t_option    *get_option(int code)
@@ -19,7 +19,7 @@ t_option    *get_option(int code)
 void print_help()
 {
     size_t  index;
-    printf("Usage: ft_ping [options] <destination>\nOptions:\n");
+    printf("Usage: ft_traceroute [options] <destination>\nOptions:\n");
 
     index = 0;
     while (index < g_opts->size) {

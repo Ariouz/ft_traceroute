@@ -1,4 +1,4 @@
-#include "ft_ping.h"
+#include "ft_traceroute.h"
 
 void    check_timeouts()
 {
@@ -7,7 +7,6 @@ void    check_timeouts()
     t_sock_rtt      *rtt;
 
     
-    pthread_mutex_lock(&g_stats_mutex);
 
     gettimeofday(&now, NULL);
 
@@ -33,5 +32,4 @@ void    check_timeouts()
     }
 
     
-    pthread_mutex_unlock(&g_stats_mutex);
 }

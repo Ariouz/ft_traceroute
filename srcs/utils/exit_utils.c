@@ -4,9 +4,7 @@ bool    is_runnning()
 {
     bool run;
 
-    pthread_mutex_lock(&g_opts_mutex);
     run = g_opts->is_running;
-    pthread_mutex_unlock(&g_opts_mutex);
     return run;
 }
 
