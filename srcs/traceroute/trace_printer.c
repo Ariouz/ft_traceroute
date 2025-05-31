@@ -3,7 +3,6 @@
 static void print_hostname_and_ip(struct in_addr addr)
 {
     struct hostent *host = gethostbyaddr(&addr, sizeof(addr), AF_INET);
-    printf("DEBUG: addr.s_addr = %u\n", addr.s_addr);
 
     char *ip_str = inet_ntoa(addr);
 
@@ -76,7 +75,7 @@ static void print_mixed_responders(struct in_addr addrs[3], float rtts[3]) {
                 last_addr = addrs[i];
                 first = 0;
             }
-            //printf("  %.3f ms  ", rtts[i]);
+            printf("  %.3f ms  ", rtts[i]);
         }
     }
     printf("\n");
