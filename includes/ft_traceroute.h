@@ -23,38 +23,20 @@
 
 # define SOCK_RTT_BATCH_SIZE 10
 
-# define OPT_HELP '?'
-# define OPT_REPLY_COUNT 'c'
-# define OPT_INTERVAL 'i'
-# define OPT_QUIET 'q'
-# define OPT_PACKET_SIZE 's'
-# define OPT_TOS 'T'
-# define OPT_VERBOSE 'v'
-# define OPT_LINGER 'W'
+# define OPT_FIRST_TTL 'f'
+# define OPT_MAX_TTL 'm'
+# define OPT_PORT 'p'
+# define OPT_SOCK_TIMEOUT 'w'
+# define OPT_NO_DNS 'n'
 
 # define MAX_OPTS 16
 
-# define SOCK_SENT 0
-# define SOCK_RECEIVED 1
-# define SOCK_TIMEOUT 2
-
-
 typedef int bool;
 
-typedef struct s_sock_rtt {
-    struct timeval      start;
-    struct timeval      end;
-    int                 sequence;
-    float               rtt;
-    int                 status;
-}   t_sock_rtt;
-
-typedef struct s_stats {
-    t_sock_rtt  *sock_rtt;
-    size_t      sock_rtt_size;
-    size_t      sock_rtt_total_size;
-
-}   t_stats;
+typedef struct s_requests {
+    float rtt;
+    struct sockaddr_in responder;
+}  t_requests;
 
 typedef struct s_option {
     char    code;
@@ -68,24 +50,20 @@ typedef struct s_opts {
     size_t          size;
     char            *hostname;
     bool            is_running;
-    int             sockfd;
+    int             sockfd_icmp;
+    int             sockfd_udp;
     struct in_addr  target_ip;
 }   t_opts;
 
-
 extern t_opts *g_opts;
-extern t_stats *g_stats;
-
 
 struct in_addr  resolve_ip(const char *target);
 char            *to_str(const struct in_addr addr);
-unsigned short  checksum(void *data, int len);
 
 void            handle_signals();
 
-void            *sender_routine(void *arg);
-void            *receiver_routine(void *arg);
-void            check_timeouts();
+int             open_send_socket();
+int             open_recv_socket();
 
 void            init_cli_options();
 t_option        *create_option(int code, char *description, int default_value, bool requires_value);
@@ -98,12 +76,10 @@ void            parse_cli_options(int argc, char **argv);
 int             parse_opt_int(char *value, int min, int max);
 
 
-int                 open_socket();
-struct sockaddr_in  get_sockaddr(struct in_addr target_ip);
-void                send_socket(struct in_addr target_ip, int sockfd, size_t payload_size, int sequence);
+struct sockaddr_in  get_sockaddr(struct in_addr target_ip, int port);
+void                send_socket(struct in_addr target_ip, int sockfd, size_t payload_size, int port);
 size_t              wait_socket(int sockfd, fd_set *read_set);
-void                receive_socket(int sockfd, fd_set *read_set);
-void	            handle_icmp_types(struct sockaddr_in rcv_sockaddr, struct icmphdr *rcv_icmp, size_t rcv_bytes, struct iphdr *rcv_ip);
+void                process_results(int ttl, struct s_requests requests[3]);
 
 void            print_help();
 
@@ -115,11 +91,6 @@ bool            is_runnning();
 void            exit_error();
 void            fatal_error(char *msg);
 void            clean_exit(int code);
-
-t_stats         *init_stats();
-void            save_send_time(t_stats *stats, int sequence);
-float           save_rcv_time(t_stats *stats, int sequence);
-t_sock_rtt      *get_sock_rtt(t_stats *stats, int sequence);
 
 long long       get_time_ms(struct timeval tv);
 long long       get_time_us(struct timeval tv);

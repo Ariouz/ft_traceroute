@@ -3,17 +3,15 @@ SRCS= $(addprefix srcs/, \
 	utils/ip_utils.c \
 	utils/exit_utils.c \
 	utils/error.c \
-	utils/stats/time_utils.c \
-	utils/stats/ping_stats.c \
-	utils/stats/timeout_check.c \
+	utils/time_utils.c \
 	cli/cli_options.c \
 	cli/init_options.c \
 	cli/cli_options_parser.c \
 	socket/socket_send.c \
 	socket/socket_receive.c \
-	socket/socket_routines.c \
 	signals/sig_handler.c \
 	traceroute/tracer.c \
+	traceroute/trace_printer.c \
 	)
 OBJS= $(SRCS:.c=.o)
 

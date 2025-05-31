@@ -3,22 +3,16 @@
 bool    process_option(t_option *option, char *value)
 {
     (void) value;
-    if (option->code == OPT_HELP)
-        print_help();
-    if (option->code == OPT_VERBOSE)
-        option->value = true;
-    if (option->code == OPT_QUIET)
-        option->value = true;
-    if (option->code == OPT_REPLY_COUNT)
+    if (option->code == OPT_FIRST_TTL)
         option->value = parse_opt_int(value, 1, INT32_MAX);
-    if (option->code == OPT_LINGER)
+    if (option->code == OPT_MAX_TTL)
         option->value = parse_opt_int(value, 1, INT32_MAX);
-    if (option->code == OPT_INTERVAL)
+    if (option->code == OPT_NO_DNS)
+        option->value = 1;
+    if (option->code == OPT_SOCK_TIMEOUT)
         option->value = parse_opt_int(value, 1, INT32_MAX);
-    if (option->code == OPT_PACKET_SIZE)
-        option->value = parse_opt_int(value, 1, 1000);
-    if (option->code == OPT_TOS)
-        option->value = parse_opt_int(value, 0, 255);
+    if (option->code == OPT_PORT)
+        option->value = parse_opt_int(value, 1, 65535);
 
     return true;
 }
@@ -26,7 +20,13 @@ bool    process_option(t_option *option, char *value)
 void     parse_cli_options(int argc, char **argv)
 {
     int opt;
-	while ((opt = getopt(argc, argv, "?c:i:qs:T:vW")) != -1)
+
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--help") == 0)
+            print_help();
+    }
+
+	while ((opt = getopt(argc, argv, "m:p:f:w:n")) != -1)
 		set_option(opt, optarg);
    
 }
@@ -37,10 +37,10 @@ bool    set_option(int opt, char *optarg)
 
     option = get_option(opt);
     if (!option)
-        fatal_error("Invalid option, use -? for options list");
+        fatal_error("Invalid option, use --help for options list");
 
-    if (opt == '?' && optopt != 0)
-        exit_error();
+    /*if (opt == '?' && optopt != 0)
+        exit_error();*/
 
     return process_option(option, optarg);
 }

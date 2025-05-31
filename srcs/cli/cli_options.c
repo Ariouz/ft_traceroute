@@ -21,6 +21,8 @@ void print_help()
     size_t  index;
     printf("Usage: ft_traceroute [options] <destination>\nOptions:\n");
 
+    printf("\t --help\t\t\tDisplay this help list\n");
+
     index = 0;
     while (index < g_opts->size) {
         t_option *opt = g_opts->options[index];

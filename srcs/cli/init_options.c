@@ -13,7 +13,7 @@ void    init_opts()
     g_opts->size = 0;
     g_opts->hostname = NULL;
     g_opts->is_running = true;
-    g_opts->sockfd = -1;
+    g_opts->sockfd_icmp = -1;
 }
 
 void    init_cli_options()
@@ -22,14 +22,11 @@ void    init_cli_options()
     if (!g_opts || !g_opts->options)
         fatal_error("Fatal: Failed to init CLI options");
 
-    add_option(OPT_HELP, "Display this help list", 0, false);
-    add_option(OPT_REPLY_COUNT, "Stop after receiving <count> ECHO_REPLY packets", INT32_MAX, false);
-    add_option(OPT_INTERVAL, "Number of seconds to wait after sending a socket", 1, false);
-    add_option(OPT_QUIET, "Nothing is displayed except summary at startup and finish", false, false);
-    add_option(OPT_PACKET_SIZE, "Set the packet data bytes to be sent", 56, false);
-    add_option(OPT_TOS, "Set the packet type of service value", 0, false);
-    add_option(OPT_VERBOSE, "Enable verbose output", false, false);
-    add_option(OPT_LINGER, "Number of seconds to wait for response", 3, false);
+    add_option(OPT_FIRST_TTL, "First TTL (default 1)", 1, false);
+    add_option(OPT_MAX_TTL, "Max TTL (default 30)", 30, false);
+    add_option(OPT_NO_DNS, "Disables DNS resolution", false, false);
+    add_option(OPT_PORT, "The the base UDP packet port", 33434, false);
+    add_option(OPT_SOCK_TIMEOUT, "Max time (in seconds) to wait for a probe (default 1)", 1, false);
 }
 
 void        add_option(int code, char *description, int default_value, bool requires_value)
