@@ -25,7 +25,7 @@ void    init_cli_options()
     add_option(OPT_FIRST_TTL, "First TTL (default 1)", 1, false);
     add_option(OPT_MAX_TTL, "Max TTL (default 30)", 30, false);
     add_option(OPT_NO_DNS, "Disables DNS resolution", false, false);
-    add_option(OPT_PORT, "The the base UDP packet port", 33434, false);
+    add_option(OPT_PORT, "The base UDP packet port (default 33434)", 33434, false);
     add_option(OPT_SOCK_TIMEOUT, "Max time (in seconds) to wait for a probe (default 1)", 1, false);
 }
 

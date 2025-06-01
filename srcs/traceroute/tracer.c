@@ -1,6 +1,29 @@
 #include "ft_traceroute.h"
 
-
+static struct icmphdr *recv_ttl_socket(int sockfd_icmp, fd_set *read_set, t_requests requests[3], int request_no)
+{
+    FD_ZERO(read_set);
+    FD_SET(sockfd_icmp, read_set);
+        
+    size_t bytes = wait_socket(sockfd_icmp, read_set);
+    if (bytes == (size_t) -1)
+        return NULL ;
+        
+    if (!FD_ISSET(sockfd_icmp, read_set)) return NULL;
+    FD_CLR(sockfd_icmp, read_set);
+        
+    char			rcv_buf[1024];
+    socklen_t slen;
+        
+    slen = sizeof(struct sockaddr_in);
+    size_t rcv_bytes = recvfrom(sockfd_icmp, rcv_buf, sizeof(rcv_buf), 0, (struct sockaddr *) &requests[request_no].responder, &slen);
+        
+    if (rcv_bytes < (size_t) (sizeof(struct iphdr) + sizeof(struct icmphdr))) return NULL;
+        
+    struct icmphdr *rcv_icmp = (struct icmphdr *)(rcv_buf + sizeof(struct iphdr));
+        
+    return rcv_icmp;
+}
 
 void    process_tll(int ttl, int payload_size, int port, int sockfd_udp, int sockfd_icmp)
 {
@@ -18,27 +41,9 @@ void    process_tll(int ttl, int payload_size, int port, int sockfd_udp, int soc
         
         struct timeval start;
         gettimeofday(&start, NULL);
-        
-        FD_ZERO(&read_set);
-        FD_SET(sockfd_icmp, &read_set);
-        
-        size_t bytes = wait_socket(sockfd_icmp, &read_set);
-        if (bytes == (size_t) -1)
-            continue ;
-        
-        if (!FD_ISSET(sockfd_icmp, &read_set)) return ;
-        FD_CLR(sockfd_icmp, &read_set);
-        
-        char			rcv_buf[1024];
-        socklen_t slen;
-        
-        slen = sizeof(struct sockaddr_in);
-        size_t rcv_bytes = recvfrom(sockfd_icmp, rcv_buf, sizeof(rcv_buf), 0, (struct sockaddr *) &requests[request_no].responder, &slen);
-        
-        if (rcv_bytes < (size_t) (sizeof(struct iphdr) + sizeof(struct icmphdr))) return ;
-        
-        struct icmphdr *rcv_icmp = (struct icmphdr *)(rcv_buf + sizeof(struct iphdr));
-        
+        struct icmphdr *rcv_icmp = recv_ttl_socket(sockfd_icmp, &read_set, requests, request_no);
+        if (rcv_icmp == NULL) continue;
+
         struct timeval end;
         gettimeofday(&end, NULL);
         float rtt = (get_time_us(end) - get_time_us(start)) / (float) 1000.0;
@@ -54,6 +59,7 @@ void    process_tll(int ttl, int payload_size, int port, int sockfd_udp, int soc
             g_opts->is_running = false;
             break;
         } else continue;
+        
     }
 
     process_results(ttl, requests);
