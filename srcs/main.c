@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 	if (args_count < 1)
 		fatal_error("Destination IP/hostname required");
 	if (args_count > 1)
-		fatal_error("Destination already set");
+		fatal_error("Destination already set or unknown flag");
 
 	g_opts->hostname = argv[optind];
 	g_opts->target_ip = resolve_ip(argv[optind]);

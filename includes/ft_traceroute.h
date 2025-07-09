@@ -70,10 +70,14 @@ t_option        *create_option(int code, char *description, int default_value, b
 void            add_option(int code, char *description, int default_value, bool requires_value);
 void            save_option(t_option *option);
 
+# ifdef BONUS
 bool            set_option(int opt, char *optarg);
+int             parse_opt_int(char *value, int min, int max);
+bool            process_option(t_option *option, char *value);
+# endif
+
 t_option        *get_option(int code);
 void            parse_cli_options(int argc, char **argv);
-int             parse_opt_int(char *value, int min, int max);
 
 
 struct sockaddr_in  get_sockaddr(struct in_addr target_ip, int port);

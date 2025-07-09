@@ -3,15 +3,20 @@
 static void print_hostname_and_ip(struct in_addr addr)
 {
     struct hostent *host = gethostbyaddr(&addr, sizeof(addr), AF_INET);
+    (void) host;
 
     char *ip_str = inet_ntoa(addr);
 
+    # ifdef BONUS
     if (get_option(OPT_NO_DNS)->value == true)
         printf("%s", ip_str);
     else if (host && host->h_name)
         printf("%s (%s)", host->h_name, ip_str);
     else
         printf("%s (%s)", ip_str, ip_str);
+    # else 
+        printf("%s (%s)", ip_str, ip_str);
+    # endif
 }
 
 static int has_responded(float rtts[3]) {

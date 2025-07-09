@@ -1,36 +1,40 @@
 #include "ft_traceroute.h"
 
+# ifdef BONUS
 bool    process_option(t_option *option, char *value)
 {
-    (void) value;
-    if (option->code == OPT_FIRST_TTL)
+    if (option->code == OPT_FIRST_TTL
+        || option->code == OPT_MAX_TTL
+        || option->code == OPT_SOCK_TIMEOUT)
         option->value = parse_opt_int(value, 1, INT32_MAX);
-    if (option->code == OPT_MAX_TTL)
-        option->value = parse_opt_int(value, 1, INT32_MAX);
-    if (option->code == OPT_NO_DNS)
+    
+    else if (option->code == OPT_NO_DNS)
         option->value = 1;
-    if (option->code == OPT_SOCK_TIMEOUT)
-        option->value = parse_opt_int(value, 1, INT32_MAX);
-    if (option->code == OPT_PORT)
+
+    else if (option->code == OPT_PORT)
         option->value = parse_opt_int(value, 1, 65535);
 
     return true;
 }
+# endif
 
 void     parse_cli_options(int argc, char **argv)
 {
-    int opt;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0)
             print_help();
     }
 
+    # ifdef BONUS
+    int opt;
 	while ((opt = getopt(argc, argv, "m:p:f:w:n")) != -1)
 		set_option(opt, optarg);
+    # endif
    
 }
 
+# ifdef BONUS
 bool    set_option(int opt, char *optarg)
 {
     t_option *option;
@@ -39,12 +43,11 @@ bool    set_option(int opt, char *optarg)
     if (!option)
         fatal_error("Invalid option, use --help for options list");
 
-    /*if (opt == '?' && optopt != 0)
-        exit_error();*/
-
     return process_option(option, optarg);
 }
+# endif
 
+# ifdef BONUS
 int parse_opt_int(char *value, int min, int max)
 {
     char *endptr;
@@ -67,3 +70,4 @@ int parse_opt_int(char *value, int min, int max)
 
     return (int) val;
 }
+# endif
