@@ -25,7 +25,7 @@ $(NAME): $(OBJS)
 	@gcc $(FLAGS) $(OBJS) -o $(NAME)
 
 bonus: FLAGS += -DBONUS
-bonus: fclean $(NAME)
+bonus: $(NAME)
 
 %.o: %.c
 	@gcc -c $< -o $@ $(FLAGS) $(INCLUDES)
